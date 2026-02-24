@@ -3,35 +3,1491 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Team USA 🇺🇸</title>
+    <title>Team USA Productivity Hub</title>
     <style>
-        body {
-            /* Centers the text vertically and horizontally */
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-            background-color: #fafafa;
-            font-family: system-ui, -apple-system, sans-serif;
-            
-            /* Minimal Olympic rings color bar at the top */
-            border-top: 8px solid;
-            border-image: linear-gradient(to right, #0081C8 20%, #FCB131 20% 40%, #000000 40% 60%, #00A651 60% 80%, #EE334E 80%) 1;
+        :root {
+            --bg: #f4f6fb;
+            --surface: #ffffff;
+            --surface-muted: #eef2fb;
+            --border: #d6dcef;
+            --text: #1e2430;
+            --text-muted: #5a6477;
+            --primary: #1d4ed8;
+            --primary-soft: #dbeafe;
+            --danger: #dc2626;
+            --success: #16a34a;
+            --warning: #ca8a04;
+            --radius: 12px;
+            --radius-sm: 8px;
+            --shadow: 0 10px 28px rgba(17, 24, 39, 0.12);
+            --space-1: 6px;
+            --space-2: 10px;
+            --space-3: 14px;
+            --space-4: 18px;
+            --space-5: 24px;
         }
 
-        h1 {
-            font-size: 3.5rem;
-            color: #002868; /* Classic Team USA Navy */
+        [data-theme="dark"] {
+            --bg: #10131a;
+            --surface: #151a24;
+            --surface-muted: #1f2633;
+            --border: #2e3748;
+            --text: #edf1fa;
+            --text-muted: #a8b2c8;
+            --primary: #60a5fa;
+            --primary-soft: #233654;
+            --danger: #f87171;
+            --success: #4ade80;
+            --warning: #facc15;
+            --shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
+        }
+
+        [data-theme="ocean"] {
+            --bg: #f0f9ff;
+            --surface: #ffffff;
+            --surface-muted: #e0f2fe;
+            --border: #b6e1ff;
+            --text: #0f172a;
+            --text-muted: #375a7f;
+            --primary: #0369a1;
+            --primary-soft: #bae6fd;
+            --danger: #be123c;
+            --success: #0f766e;
+            --warning: #a16207;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
             margin: 0;
+            font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+        }
+
+        button,
+        input,
+        textarea,
+        select {
+            font: inherit;
+            color: inherit;
+        }
+
+        .app {
+            min-height: 100vh;
+            padding: var(--space-4);
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-4);
+        }
+
+        .topbar {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: var(--space-3) var(--space-4);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: var(--space-3);
+            flex-wrap: wrap;
+        }
+
+        .title-wrap h1 {
+            margin: 0;
+            font-size: clamp(1.2rem, 3vw, 1.7rem);
+        }
+
+        .title-wrap p {
+            margin: 2px 0 0;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .topbar-actions {
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+            flex-wrap: wrap;
+        }
+
+        .theme-btn,
+        .btn {
+            border: 1px solid var(--border);
+            background: var(--surface-muted);
+            border-radius: var(--radius-sm);
+            padding: 8px 12px;
+            cursor: pointer;
+        }
+
+        .theme-btn.active {
+            background: var(--primary-soft);
+            border-color: var(--primary);
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: #fff;
+            border-color: var(--primary);
+        }
+
+        .layout {
+            display: grid;
+            gap: var(--space-4);
+            grid-template-columns: repeat(12, minmax(0, 1fr));
+        }
+
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: var(--space-3);
+            min-width: 0;
+        }
+
+        .card h2 {
+            margin: 0 0 var(--space-3);
+            font-size: 1rem;
+        }
+
+        .kanban-card { grid-column: span 12; }
+        .games-card { grid-column: span 12; }
+        .notes-card { grid-column: span 12; }
+        .habits-card { grid-column: span 12; }
+        .calendar-card { grid-column: span 12; }
+
+        @media (min-width: 900px) {
+            .games-card,
+            .notes-card,
+            .habits-card,
+            .calendar-card { grid-column: span 6; }
+        }
+
+        @media (min-width: 1280px) {
+            .kanban-card { grid-column: span 12; }
+            .games-card { grid-column: span 4; }
+            .notes-card { grid-column: span 4; }
+            .habits-card { grid-column: span 4; }
+            .calendar-card { grid-column: span 12; }
+        }
+
+        .section-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: var(--space-2);
+            gap: var(--space-2);
+            flex-wrap: wrap;
+        }
+
+        .muted {
+            color: var(--text-muted);
+            font-size: 0.88rem;
+        }
+
+        .pill {
+            border-radius: 999px;
+            padding: 2px 10px;
+            background: var(--surface-muted);
+            border: 1px solid var(--border);
+            font-size: 0.78rem;
+            color: var(--text-muted);
+        }
+
+        .row {
+            display: flex;
+            gap: var(--space-2);
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .grow {
+            flex: 1;
+            min-width: 0;
+        }
+
+        input[type="text"],
+        input[type="date"],
+        input[type="time"],
+        textarea,
+        select {
+            width: 100%;
+            border: 1px solid var(--border);
+            background: var(--surface);
+            border-radius: var(--radius-sm);
+            padding: 8px 10px;
+        }
+
+        textarea {
+            min-height: 130px;
+            resize: vertical;
+        }
+
+        .kanban-board {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+            gap: var(--space-2);
+        }
+
+        .kanban-column {
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: var(--space-2);
+            background: var(--surface-muted);
+            min-height: 180px;
+        }
+
+        .kanban-list {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-2);
+            min-height: 120px;
+        }
+
+        .kanban-item {
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            background: var(--surface);
+            padding: 8px;
+            cursor: grab;
+        }
+
+        .kanban-item.dragging {
+            opacity: 0.55;
+        }
+
+        .kanban-item h4 {
+            margin: 0 0 6px;
+            font-size: 0.92rem;
+        }
+
+        .kanban-item p {
+            margin: 0;
+            font-size: 0.82rem;
+            color: var(--text-muted);
+        }
+
+        .game-tabs {
+            display: flex;
+            gap: var(--space-2);
+            margin-bottom: var(--space-2);
+        }
+
+        .game-tab {
+            flex: 1;
+        }
+
+        .grid-ttt {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: var(--space-2);
+            max-width: 280px;
+        }
+
+        .cell-ttt {
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            background: var(--surface-muted);
+            min-height: 70px;
+            font-size: 1.5rem;
             font-weight: 700;
-            letter-spacing: -0.02em;
+        }
+
+        .grid-2048 {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: var(--space-1);
+            width: min(100%, 320px);
+            background: var(--border);
+            padding: var(--space-1);
+            border-radius: var(--radius-sm);
+        }
+
+        .tile {
+            aspect-ratio: 1 / 1;
+            border-radius: 6px;
+            display: grid;
+            place-items: center;
+            background: var(--surface-muted);
+            font-weight: 700;
+        }
+
+        .tile.v2 { background: #e2e8f0; color: #1e293b; }
+        .tile.v4 { background: #cbd5e1; color: #1e293b; }
+        .tile.v8 { background: #bfdbfe; color: #1e3a8a; }
+        .tile.v16 { background: #93c5fd; color: #1e3a8a; }
+        .tile.v32 { background: #60a5fa; color: #f8fafc; }
+        .tile.v64 { background: #3b82f6; color: #f8fafc; }
+        .tile.v128,
+        .tile.v256,
+        .tile.v512,
+        .tile.v1024,
+        .tile.v2048 { background: #1d4ed8; color: #f8fafc; }
+
+        .notes-wrap {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: var(--space-2);
+        }
+
+        @media (min-width: 700px) {
+            .notes-wrap {
+                grid-template-columns: minmax(200px, 1fr) minmax(0, 2fr);
+            }
+        }
+
+        .notes-list {
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: var(--space-2);
+            max-height: 320px;
+            overflow: auto;
+            background: var(--surface-muted);
+        }
+
+        .note-item {
+            width: 100%;
+            text-align: left;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            background: var(--surface);
+            padding: 8px;
+            margin-bottom: 8px;
+            cursor: pointer;
+        }
+
+        .note-item.active {
+            border-color: var(--primary);
+            background: var(--primary-soft);
+        }
+
+        .tag {
+            display: inline-block;
+            margin-right: 4px;
+            margin-top: 4px;
+            padding: 2px 8px;
+            border-radius: 999px;
+            border: 1px solid var(--border);
+            background: var(--surface-muted);
+            font-size: 0.75rem;
+        }
+
+        .habit-list {
+            display: grid;
+            gap: var(--space-2);
+        }
+
+        .habit-item {
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: var(--space-2);
+            background: var(--surface-muted);
+        }
+
+        .calendar-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: var(--space-2);
+            gap: var(--space-2);
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, minmax(0, 1fr));
+            gap: 6px;
+        }
+
+        .dow,
+        .day {
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 8px;
+            min-height: 54px;
+            font-size: 0.84rem;
+            background: var(--surface-muted);
+        }
+
+        .dow {
+            font-weight: 700;
+            min-height: auto;
+            text-align: center;
+            background: var(--surface);
+        }
+
+        .day.outside {
+            opacity: 0.55;
+        }
+
+        .day.selected {
+            border-color: var(--primary);
+            background: var(--primary-soft);
+        }
+
+        .event-dot {
+            display: inline-block;
+            width: 6px;
+            height: 6px;
+            border-radius: 999px;
+            background: var(--primary);
+            margin-left: 6px;
+        }
+
+        .event-list {
+            margin-top: var(--space-2);
+            display: grid;
+            gap: var(--space-1);
+        }
+
+        .event-item {
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 6px 8px;
+            background: var(--surface-muted);
+            display: flex;
+            justify-content: space-between;
+            gap: var(--space-2);
+            align-items: center;
         }
     </style>
 </head>
 <body>
+    <div class="app" id="app"></div>
+    <script>
+        (function () {
+            var STORAGE_KEY = "teamUsaDashboardStateV1";
+            var STATE_VERSION = 1;
+            var saveTimer = null;
 
-    <h1>Go team USA! 🇺🇸</h1>
+            function uid(prefix) {
+                return prefix + "_" + Math.random().toString(36).slice(2, 9);
+            }
 
+            function todayIso() {
+                return new Date().toISOString().slice(0, 10);
+            }
+
+            function toIsoDate(dateObj) {
+                var y = dateObj.getFullYear();
+                var m = String(dateObj.getMonth() + 1).padStart(2, "0");
+                var d = String(dateObj.getDate()).padStart(2, "0");
+                return y + "-" + m + "-" + d;
+            }
+
+            function sameDay(isoA, isoB) {
+                return isoA === isoB;
+            }
+
+            function shiftDate(isoDate, days) {
+                var date = new Date(isoDate + "T00:00:00");
+                date.setDate(date.getDate() + days);
+                return toIsoDate(date);
+            }
+
+            function createDefaultState() {
+                var noteId = uid("note");
+                return {
+                    version: STATE_VERSION,
+                    theme: "light",
+                    kanban: {
+                        columns: [
+                            { id: "todo", title: "Todo", cardIds: [] },
+                            { id: "inprogress", title: "In Progress", cardIds: [] },
+                            { id: "blocked", title: "Blocked", cardIds: [] },
+                            { id: "done", title: "Done", cardIds: [] }
+                        ],
+                        cardsById: {}
+                    },
+                    games: {
+                        active: "ttt",
+                        stats: {
+                            tttXWins: 0,
+                            tttOWins: 0,
+                            tttDraws: 0,
+                            g2048Best: 0,
+                            g2048Sessions: 0
+                        },
+                        ttt: {
+                            board: ["", "", "", "", "", "", "", "", ""],
+                            currentPlayer: "X",
+                            winner: ""
+                        },
+                        g2048: {
+                            grid: [
+                                [0, 0, 0, 0],
+                                [0, 0, 0, 0],
+                                [0, 0, 0, 0],
+                                [0, 0, 0, 0]
+                            ],
+                            score: 0,
+                            over: false
+                        }
+                    },
+                    notes: {
+                        search: "",
+                        selectedId: noteId,
+                        items: [
+                            {
+                                id: noteId,
+                                title: "Welcome note",
+                                body: "Use this dashboard to track tasks, events, habits, and game breaks.",
+                                tags: ["start", "dashboard"],
+                                updatedAt: Date.now()
+                            }
+                        ]
+                    },
+                    habits: {
+                        items: []
+                    },
+                    calendar: {
+                        viewYear: new Date().getFullYear(),
+                        viewMonth: new Date().getMonth(),
+                        selectedDate: todayIso(),
+                        events: []
+                    }
+                };
+            }
+
+            function loadState() {
+                try {
+                    var raw = localStorage.getItem(STORAGE_KEY);
+                    if (!raw) {
+                        return createDefaultState();
+                    }
+                    var parsed = JSON.parse(raw);
+                    if (!parsed || parsed.version !== STATE_VERSION) {
+                        return createDefaultState();
+                    }
+                    return parsed;
+                } catch (error) {
+                    return createDefaultState();
+                }
+            }
+
+            var state = loadState();
+
+            function scheduleSave() {
+                if (saveTimer) {
+                    clearTimeout(saveTimer);
+                }
+                saveTimer = setTimeout(function () {
+                    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+                }, 180);
+            }
+
+            function resetDashboard() {
+                state = createDefaultState();
+                start2048Game();
+                scheduleSave();
+                renderApp();
+            }
+
+            function setTheme(theme) {
+                state.theme = theme;
+                document.documentElement.setAttribute("data-theme", theme);
+                scheduleSave();
+                renderTopbar();
+            }
+
+            function initTheme() {
+                document.documentElement.setAttribute("data-theme", state.theme || "light");
+            }
+
+            function renderTopbar() {
+                var topbar = document.getElementById("topbar");
+                if (!topbar) {
+                    return;
+                }
+                topbar.innerHTML =
+                    '<div class="title-wrap">' +
+                    "<h1>Team USA Productivity Hub</h1>" +
+                    '<p>Kanban, notes, habits, calendar, and mini games.</p>' +
+                    "</div>" +
+                    '<div class="topbar-actions">' +
+                    '<button class="theme-btn ' + (state.theme === "light" ? "active" : "") + '" data-theme="light">Light</button>' +
+                    '<button class="theme-btn ' + (state.theme === "dark" ? "active" : "") + '" data-theme="dark">Dark</button>' +
+                    '<button class="theme-btn ' + (state.theme === "ocean" ? "active" : "") + '" data-theme="ocean">Ocean</button>' +
+                    '<button class="btn" id="resetDashboardBtn">Reset Data</button>' +
+                    "</div>";
+
+                topbar.querySelectorAll(".theme-btn").forEach(function (button) {
+                    button.addEventListener("click", function () {
+                        setTheme(button.getAttribute("data-theme"));
+                    });
+                });
+                topbar.querySelector("#resetDashboardBtn").addEventListener("click", function () {
+                    if (window.confirm("Reset all saved dashboard data?")) {
+                        resetDashboard();
+                    }
+                });
+            }
+
+            function createShell() {
+                var app = document.getElementById("app");
+                app.innerHTML =
+                    '<header class="topbar" id="topbar"></header>' +
+                    '<main class="layout">' +
+                    '<section class="card kanban-card" id="kanbanCard"></section>' +
+                    '<section class="card games-card" id="gamesCard"></section>' +
+                    '<section class="card notes-card" id="notesCard"></section>' +
+                    '<section class="card habits-card" id="habitsCard"></section>' +
+                    '<section class="card calendar-card" id="calendarCard"></section>' +
+                    "</main>";
+            }
+
+            function renderKanban() {
+                var card = document.getElementById("kanbanCard");
+                var columnsHtml = state.kanban.columns
+                    .map(function (column, columnIndex) {
+                        var itemsHtml = column.cardIds
+                            .map(function (cardId) {
+                                var item = state.kanban.cardsById[cardId];
+                                if (!item) {
+                                    return "";
+                                }
+                                return (
+                                    '<article class="kanban-item" draggable="true" data-card-id="' + item.id + '" data-column-id="' + column.id + '">' +
+                                    "<h4>" + escapeHtml(item.title) + "</h4>" +
+                                    "<p>" + escapeHtml(item.description || "") + "</p>" +
+                                    '<div class="row" style="margin-top:8px;">' +
+                                    '<button class="btn" data-action="edit-card" data-card-id="' + item.id + '">Edit</button>' +
+                                    '<button class="btn" data-action="delete-card" data-card-id="' + item.id + '">Delete</button>' +
+                                    '<button class="btn" data-action="move-left" data-card-id="' + item.id + '" data-column-index="' + columnIndex + '">Left</button>' +
+                                    '<button class="btn" data-action="move-right" data-card-id="' + item.id + '" data-column-index="' + columnIndex + '">Right</button>' +
+                                    "</div>" +
+                                    "</article>"
+                                );
+                            })
+                            .join("");
+
+                        return (
+                            '<div class="kanban-column" data-column-id="' + column.id + '">' +
+                            '<div class="section-head">' +
+                            "<strong>" + escapeHtml(column.title) + "</strong>" +
+                            '<span class="pill">' + column.cardIds.length + "</span>" +
+                            "</div>" +
+                            '<div class="kanban-list" data-dropzone="' + column.id + '">' + itemsHtml + "</div>" +
+                            '<button class="btn" data-action="add-card" data-column-id="' + column.id + '" style="margin-top:8px;">+ Add Card</button>' +
+                            "</div>"
+                        );
+                    })
+                    .join("");
+
+                card.innerHTML =
+                    '<div class="section-head">' +
+                    "<h2>Kanban Board</h2>" +
+                    '<span class="muted">Drag cards between columns. Data persists.</span>' +
+                    "</div>" +
+                    '<div class="kanban-board">' + columnsHtml + "</div>";
+
+                bindKanbanEvents(card);
+            }
+
+            function bindKanbanEvents(cardRoot) {
+                var dragData = { cardId: "", fromColumn: "" };
+
+                cardRoot.querySelectorAll(".kanban-item").forEach(function (item) {
+                    item.addEventListener("dragstart", function (event) {
+                        dragData.cardId = item.getAttribute("data-card-id");
+                        dragData.fromColumn = item.getAttribute("data-column-id");
+                        item.classList.add("dragging");
+                        event.dataTransfer.setData("text/plain", dragData.cardId);
+                    });
+                    item.addEventListener("dragend", function () {
+                        item.classList.remove("dragging");
+                    });
+                });
+
+                cardRoot.querySelectorAll(".kanban-list").forEach(function (list) {
+                    list.addEventListener("dragover", function (event) {
+                        event.preventDefault();
+                    });
+                    list.addEventListener("drop", function (event) {
+                        event.preventDefault();
+                        var targetColumn = list.getAttribute("data-dropzone");
+                        moveCardToColumn(dragData.cardId, dragData.fromColumn, targetColumn);
+                    });
+                });
+
+                cardRoot.addEventListener("click", function (event) {
+                    var target = event.target;
+                    if (!(target instanceof HTMLElement)) {
+                        return;
+                    }
+                    var action = target.getAttribute("data-action");
+                    if (!action) {
+                        return;
+                    }
+
+                    if (action === "add-card") {
+                        var columnId = target.getAttribute("data-column-id");
+                        var title = window.prompt("Card title:");
+                        if (!title) {
+                            return;
+                        }
+                        var description = window.prompt("Card description (optional):") || "";
+                        var id = uid("card");
+                        state.kanban.cardsById[id] = { id: id, title: title.trim(), description: description.trim() };
+                        var col = state.kanban.columns.find(function (entry) { return entry.id === columnId; });
+                        if (col) {
+                            col.cardIds.push(id);
+                            scheduleSave();
+                            renderKanban();
+                        }
+                    }
+
+                    if (action === "edit-card") {
+                        var editId = target.getAttribute("data-card-id");
+                        var card = state.kanban.cardsById[editId];
+                        if (!card) {
+                            return;
+                        }
+                        var nextTitle = window.prompt("Edit title:", card.title);
+                        if (!nextTitle) {
+                            return;
+                        }
+                        var nextDescription = window.prompt("Edit description:", card.description || "") || "";
+                        card.title = nextTitle.trim();
+                        card.description = nextDescription.trim();
+                        scheduleSave();
+                        renderKanban();
+                    }
+
+                    if (action === "delete-card") {
+                        var deleteId = target.getAttribute("data-card-id");
+                        delete state.kanban.cardsById[deleteId];
+                        state.kanban.columns.forEach(function (column) {
+                            column.cardIds = column.cardIds.filter(function (id) { return id !== deleteId; });
+                        });
+                        scheduleSave();
+                        renderKanban();
+                    }
+
+                    if (action === "move-left" || action === "move-right") {
+                        var moveId = target.getAttribute("data-card-id");
+                        var index = Number(target.getAttribute("data-column-index"));
+                        var destinationIndex = action === "move-left" ? index - 1 : index + 1;
+                        if (destinationIndex < 0 || destinationIndex >= state.kanban.columns.length) {
+                            return;
+                        }
+                        moveCardToColumn(moveId, state.kanban.columns[index].id, state.kanban.columns[destinationIndex].id);
+                    }
+                });
+            }
+
+            function moveCardToColumn(cardId, fromColumnId, targetColumnId) {
+                if (!cardId || fromColumnId === targetColumnId) {
+                    return;
+                }
+                var from = state.kanban.columns.find(function (column) { return column.id === fromColumnId; });
+                var to = state.kanban.columns.find(function (column) { return column.id === targetColumnId; });
+                if (!from || !to) {
+                    return;
+                }
+                from.cardIds = from.cardIds.filter(function (id) { return id !== cardId; });
+                to.cardIds.push(cardId);
+                scheduleSave();
+                renderKanban();
+            }
+
+            function renderGames() {
+                var card = document.getElementById("gamesCard");
+                var active = state.games.active;
+                var tabs =
+                    '<div class="game-tabs">' +
+                    '<button class="btn game-tab ' + (active === "ttt" ? "btn-primary" : "") + '" data-game="ttt">Tic-Tac-Toe</button>' +
+                    '<button class="btn game-tab ' + (active === "2048" ? "btn-primary" : "") + '" data-game="2048">2048</button>' +
+                    "</div>";
+
+                var stats =
+                    '<div class="row" style="margin-bottom:8px;">' +
+                    '<span class="pill">X Wins: ' + state.games.stats.tttXWins + "</span>" +
+                    '<span class="pill">O Wins: ' + state.games.stats.tttOWins + "</span>" +
+                    '<span class="pill">Draws: ' + state.games.stats.tttDraws + "</span>" +
+                    '<span class="pill">2048 Best: ' + state.games.stats.g2048Best + "</span>" +
+                    "</div>";
+
+                card.innerHTML =
+                    '<div class="section-head"><h2>Game Lobby</h2><span class="muted">Two playable mini-games with saved stats.</span></div>' +
+                    tabs +
+                    stats +
+                    '<div id="gamesBody"></div>';
+
+                card.querySelectorAll("[data-game]").forEach(function (button) {
+                    button.addEventListener("click", function () {
+                        state.games.active = button.getAttribute("data-game");
+                        scheduleSave();
+                        renderGames();
+                    });
+                });
+
+                if (active === "ttt") {
+                    renderTtt();
+                } else {
+                    render2048();
+                }
+            }
+
+            function renderTtt() {
+                var body = document.getElementById("gamesBody");
+                var winner = state.games.ttt.winner;
+                var status = winner ? "Winner: " + winner : "Turn: " + state.games.ttt.currentPlayer;
+                body.innerHTML =
+                    '<div class="section-head"><span class="muted">' + status + "</span>" +
+                    '<button class="btn" id="tttReset">Reset Board</button></div>' +
+                    '<div class="grid-ttt">' +
+                    state.games.ttt.board
+                        .map(function (value, i) {
+                            return '<button class="cell-ttt" data-cell="' + i + '">' + escapeHtml(value || "") + "</button>";
+                        })
+                        .join("") +
+                    "</div>";
+
+                body.querySelector("#tttReset").addEventListener("click", resetTttBoard);
+                body.querySelectorAll(".cell-ttt").forEach(function (cell) {
+                    cell.addEventListener("click", function () {
+                        var index = Number(cell.getAttribute("data-cell"));
+                        playTtt(index);
+                    });
+                });
+            }
+
+            function resetTttBoard() {
+                state.games.ttt.board = ["", "", "", "", "", "", "", "", ""];
+                state.games.ttt.currentPlayer = "X";
+                state.games.ttt.winner = "";
+                scheduleSave();
+                renderGames();
+            }
+
+            function playTtt(index) {
+                var ttt = state.games.ttt;
+                if (ttt.winner || ttt.board[index]) {
+                    return;
+                }
+                ttt.board[index] = ttt.currentPlayer;
+                var winner = getTttWinner(ttt.board);
+                if (winner) {
+                    ttt.winner = winner;
+                    if (winner === "X") {
+                        state.games.stats.tttXWins += 1;
+                    } else {
+                        state.games.stats.tttOWins += 1;
+                    }
+                } else if (ttt.board.every(function (entry) { return Boolean(entry); })) {
+                    ttt.winner = "Draw";
+                    state.games.stats.tttDraws += 1;
+                } else {
+                    ttt.currentPlayer = ttt.currentPlayer === "X" ? "O" : "X";
+                }
+                scheduleSave();
+                renderGames();
+            }
+
+            function getTttWinner(board) {
+                var lines = [
+                    [0, 1, 2], [3, 4, 5], [6, 7, 8],
+                    [0, 3, 6], [1, 4, 7], [2, 5, 8],
+                    [0, 4, 8], [2, 4, 6]
+                ];
+                for (var i = 0; i < lines.length; i += 1) {
+                    var a = lines[i][0];
+                    var b = lines[i][1];
+                    var c = lines[i][2];
+                    if (board[a] && board[a] === board[b] && board[a] === board[c]) {
+                        return board[a];
+                    }
+                }
+                return "";
+            }
+
+            function start2048Game() {
+                state.games.g2048.grid = [
+                    [0, 0, 0, 0],
+                    [0, 0, 0, 0],
+                    [0, 0, 0, 0],
+                    [0, 0, 0, 0]
+                ];
+                state.games.g2048.score = 0;
+                state.games.g2048.over = false;
+                state.games.stats.g2048Sessions += 1;
+                addRandomTile();
+                addRandomTile();
+            }
+
+            function addRandomTile() {
+                var empty = [];
+                state.games.g2048.grid.forEach(function (row, r) {
+                    row.forEach(function (value, c) {
+                        if (value === 0) {
+                            empty.push({ r: r, c: c });
+                        }
+                    });
+                });
+                if (!empty.length) {
+                    return;
+                }
+                var spot = empty[Math.floor(Math.random() * empty.length)];
+                state.games.g2048.grid[spot.r][spot.c] = Math.random() < 0.9 ? 2 : 4;
+            }
+
+            function cloneGrid(grid) {
+                return grid.map(function (row) { return row.slice(); });
+            }
+
+            function move2048(direction) {
+                if (state.games.active !== "2048" || state.games.g2048.over) {
+                    return;
+                }
+                var before = cloneGrid(state.games.g2048.grid);
+                var result = slideGrid(state.games.g2048.grid, direction);
+                state.games.g2048.grid = result.grid;
+                state.games.g2048.score += result.scoreGain;
+                if (state.games.g2048.score > state.games.stats.g2048Best) {
+                    state.games.stats.g2048Best = state.games.g2048.score;
+                }
+                if (!gridsEqual(before, state.games.g2048.grid)) {
+                    addRandomTile();
+                }
+                if (!canMove2048()) {
+                    state.games.g2048.over = true;
+                }
+                scheduleSave();
+                renderGames();
+            }
+
+            function gridsEqual(a, b) {
+                for (var r = 0; r < 4; r += 1) {
+                    for (var c = 0; c < 4; c += 1) {
+                        if (a[r][c] !== b[r][c]) {
+                            return false;
+                        }
+                    }
+                }
+                return true;
+            }
+
+            function slideGrid(grid, direction) {
+                var working = cloneGrid(grid);
+                var scoreGain = 0;
+
+                function mergeLine(line) {
+                    var compact = line.filter(function (v) { return v !== 0; });
+                    for (var i = 0; i < compact.length - 1; i += 1) {
+                        if (compact[i] === compact[i + 1]) {
+                            compact[i] *= 2;
+                            scoreGain += compact[i];
+                            compact[i + 1] = 0;
+                        }
+                    }
+                    compact = compact.filter(function (v) { return v !== 0; });
+                    while (compact.length < 4) {
+                        compact.push(0);
+                    }
+                    return compact;
+                }
+
+                for (var i = 0; i < 4; i += 1) {
+                    var line;
+                    if (direction === "left" || direction === "right") {
+                        line = working[i].slice();
+                        if (direction === "right") {
+                            line.reverse();
+                        }
+                        line = mergeLine(line);
+                        if (direction === "right") {
+                            line.reverse();
+                        }
+                        working[i] = line;
+                    } else {
+                        line = [working[0][i], working[1][i], working[2][i], working[3][i]];
+                        if (direction === "down") {
+                            line.reverse();
+                        }
+                        line = mergeLine(line);
+                        if (direction === "down") {
+                            line.reverse();
+                        }
+                        for (var r = 0; r < 4; r += 1) {
+                            working[r][i] = line[r];
+                        }
+                    }
+                }
+                return { grid: working, scoreGain: scoreGain };
+            }
+
+            function canMove2048() {
+                var grid = state.games.g2048.grid;
+                for (var r = 0; r < 4; r += 1) {
+                    for (var c = 0; c < 4; c += 1) {
+                        var value = grid[r][c];
+                        if (value === 0) {
+                            return true;
+                        }
+                        var right = c < 3 ? grid[r][c + 1] : null;
+                        var down = r < 3 ? grid[r + 1][c] : null;
+                        if (value === right || value === down) {
+                            return true;
+                        }
+                    }
+                }
+                return false;
+            }
+
+            function render2048() {
+                var body = document.getElementById("gamesBody");
+                var g = state.games.g2048;
+                body.innerHTML =
+                    '<div class="section-head">' +
+                    '<span class="muted">Score: ' + g.score + (g.over ? " - Game Over" : "") + "</span>" +
+                    '<button class="btn" id="reset2048">New Game</button>' +
+                    "</div>" +
+                    '<div class="grid-2048" id="g2048Board">' +
+                    g.grid
+                        .flat()
+                        .map(function (value) {
+                            var cls = value ? "tile v" + value : "tile";
+                            return '<div class="' + cls + '">' + (value ? value : "") + "</div>";
+                        })
+                        .join("") +
+                    "</div>" +
+                    '<p class="muted" style="margin-top:8px;">Use arrow keys or swipe on mobile.</p>';
+
+                body.querySelector("#reset2048").addEventListener("click", function () {
+                    start2048Game();
+                    scheduleSave();
+                    renderGames();
+                });
+                bind2048Touch(body.querySelector("#g2048Board"));
+            }
+
+            function bind2048Touch(board) {
+                if (!board) {
+                    return;
+                }
+                var sx = 0;
+                var sy = 0;
+                board.addEventListener("touchstart", function (event) {
+                    var t = event.changedTouches[0];
+                    sx = t.clientX;
+                    sy = t.clientY;
+                }, { passive: true });
+                board.addEventListener("touchend", function (event) {
+                    var t = event.changedTouches[0];
+                    var dx = t.clientX - sx;
+                    var dy = t.clientY - sy;
+                    if (Math.abs(dx) < 18 && Math.abs(dy) < 18) {
+                        return;
+                    }
+                    if (Math.abs(dx) > Math.abs(dy)) {
+                        move2048(dx > 0 ? "right" : "left");
+                    } else {
+                        move2048(dy > 0 ? "down" : "up");
+                    }
+                }, { passive: true });
+            }
+
+            function renderNotes() {
+                var card = document.getElementById("notesCard");
+                var search = state.notes.search.trim().toLowerCase();
+                var notes = state.notes.items
+                    .slice()
+                    .sort(function (a, b) { return b.updatedAt - a.updatedAt; })
+                    .filter(function (note) {
+                        if (!search) {
+                            return true;
+                        }
+                        var hay = [note.title, note.body, note.tags.join(" ")].join(" ").toLowerCase();
+                        return hay.indexOf(search) !== -1;
+                    });
+                var selected = state.notes.items.find(function (note) { return note.id === state.notes.selectedId; });
+
+                card.innerHTML =
+                    '<div class="section-head">' +
+                    "<h2>Mini Notes</h2>" +
+                    '<button class="btn" id="addNoteBtn">+ New Note</button>' +
+                    "</div>" +
+                    '<div class="row"><input id="noteSearch" type="text" placeholder="Search title, content, or tags..." value="' + escapeAttr(state.notes.search) + '"></div>' +
+                    '<div class="notes-wrap" style="margin-top:10px;">' +
+                    '<div class="notes-list" id="notesList">' +
+                    (notes.length
+                        ? notes.map(function (note) {
+                            return (
+                                '<button class="note-item ' + (note.id === state.notes.selectedId ? "active" : "") + '" data-note-id="' + note.id + '">' +
+                                "<strong>" + escapeHtml(note.title || "Untitled") + "</strong>" +
+                                '<div class="muted">' + new Date(note.updatedAt).toLocaleString() + "</div>" +
+                                '<div>' + note.tags.map(function (tag) { return '<span class="tag">#' + escapeHtml(tag) + "</span>"; }).join("") + "</div>" +
+                                "</button>"
+                            );
+                        }).join("")
+                        : '<p class="muted">No notes match your search.</p>') +
+                    "</div>" +
+                    '<div id="noteEditor">' + renderNoteEditor(selected) + "</div>" +
+                    "</div>";
+
+                bindNotesEvents(card);
+            }
+
+            function renderNoteEditor(note) {
+                if (!note) {
+                    return '<p class="muted">Select or create a note.</p>';
+                }
+                return (
+                    '<div class="row" style="margin-bottom:8px;"><input type="text" id="noteTitle" value="' + escapeAttr(note.title) + '" placeholder="Title"></div>' +
+                    '<div class="row" style="margin-bottom:8px;"><textarea id="noteBody" placeholder="Write your note...">' + escapeHtml(note.body) + "</textarea></div>" +
+                    '<div class="row" style="margin-bottom:8px;"><input type="text" id="noteTags" value="' + escapeAttr(note.tags.join(", ")) + '" placeholder="tags, comma, separated"></div>' +
+                    '<div class="row"><button class="btn" id="saveNoteBtn">Save</button><button class="btn" id="deleteNoteBtn">Delete</button></div>'
+                );
+            }
+
+            function bindNotesEvents(cardRoot) {
+                var searchInput = cardRoot.querySelector("#noteSearch");
+                searchInput.addEventListener("input", function () {
+                    state.notes.search = searchInput.value;
+                    scheduleSave();
+                    renderNotes();
+                });
+                cardRoot.querySelector("#addNoteBtn").addEventListener("click", function () {
+                    var id = uid("note");
+                    var note = { id: id, title: "New Note", body: "", tags: [], updatedAt: Date.now() };
+                    state.notes.items.unshift(note);
+                    state.notes.selectedId = id;
+                    scheduleSave();
+                    renderNotes();
+                });
+                cardRoot.querySelectorAll("[data-note-id]").forEach(function (item) {
+                    item.addEventListener("click", function () {
+                        state.notes.selectedId = item.getAttribute("data-note-id");
+                        scheduleSave();
+                        renderNotes();
+                    });
+                });
+
+                var saveBtn = cardRoot.querySelector("#saveNoteBtn");
+                var deleteBtn = cardRoot.querySelector("#deleteNoteBtn");
+                if (saveBtn && deleteBtn) {
+                    saveBtn.addEventListener("click", function () {
+                        var note = state.notes.items.find(function (entry) { return entry.id === state.notes.selectedId; });
+                        if (!note) {
+                            return;
+                        }
+                        var title = cardRoot.querySelector("#noteTitle").value.trim();
+                        var body = cardRoot.querySelector("#noteBody").value;
+                        var tags = cardRoot.querySelector("#noteTags").value
+                            .split(",")
+                            .map(function (tag) { return tag.trim(); })
+                            .filter(Boolean);
+                        note.title = title || "Untitled";
+                        note.body = body;
+                        note.tags = tags;
+                        note.updatedAt = Date.now();
+                        scheduleSave();
+                        renderNotes();
+                    });
+
+                    deleteBtn.addEventListener("click", function () {
+                        var deleting = state.notes.selectedId;
+                        state.notes.items = state.notes.items.filter(function (entry) { return entry.id !== deleting; });
+                        state.notes.selectedId = state.notes.items[0] ? state.notes.items[0].id : "";
+                        scheduleSave();
+                        renderNotes();
+                    });
+                }
+            }
+
+            function renderHabits() {
+                var card = document.getElementById("habitsCard");
+                var listHtml = state.habits.items.length
+                    ? state.habits.items.map(function (habit) {
+                        var streaks = calculateStreaks(habit.dates);
+                        var completedToday = habit.dates.indexOf(todayIso()) !== -1;
+                        return (
+                            '<div class="habit-item">' +
+                            '<div class="section-head"><strong>' + escapeHtml(habit.name) + '</strong>' +
+                            '<button class="btn" data-delete-habit="' + habit.id + '">Delete</button></div>' +
+                            '<div class="row"><label><input type="checkbox" data-toggle-habit="' + habit.id + '" ' + (completedToday ? "checked" : "") + "> Done today</label></div>" +
+                            '<div class="row" style="margin-top:8px;">' +
+                            '<span class="pill">Current streak: ' + streaks.current + " days</span>" +
+                            '<span class="pill">Longest streak: ' + streaks.longest + " days</span>" +
+                            '<span class="pill">Completions: ' + habit.dates.length + "</span>" +
+                            "</div>" +
+                            "</div>"
+                        );
+                    }).join("")
+                    : '<p class="muted">No habits yet. Add one below.</p>';
+
+                card.innerHTML =
+                    '<div class="section-head"><h2>Habit Tracker</h2><span class="muted">Daily habits with streak logic.</span></div>' +
+                    '<div class="row" style="margin-bottom:8px;">' +
+                    '<input id="habitName" class="grow" type="text" placeholder="Add a new daily habit">' +
+                    '<button class="btn btn-primary" id="addHabitBtn">Add Habit</button>' +
+                    "</div>" +
+                    '<div class="habit-list">' + listHtml + "</div>";
+
+                bindHabitEvents(card);
+            }
+
+            function calculateStreaks(dates) {
+                if (!dates.length) {
+                    return { current: 0, longest: 0 };
+                }
+                var unique = Array.from(new Set(dates)).sort();
+                var longest = 1;
+                var streak = 1;
+                for (var i = 1; i < unique.length; i += 1) {
+                    if (shiftDate(unique[i - 1], 1) === unique[i]) {
+                        streak += 1;
+                        if (streak > longest) {
+                            longest = streak;
+                        }
+                    } else {
+                        streak = 1;
+                    }
+                }
+
+                var current = 0;
+                var anchor = unique[unique.length - 1];
+                var canCount = sameDay(anchor, todayIso()) || sameDay(anchor, shiftDate(todayIso(), -1));
+                if (canCount) {
+                    current = 1;
+                    for (var j = unique.length - 2; j >= 0; j -= 1) {
+                        if (shiftDate(unique[j], 1) === anchor) {
+                            current += 1;
+                            anchor = unique[j];
+                        } else {
+                            break;
+                        }
+                    }
+                }
+                return { current: current, longest: longest };
+            }
+
+            function bindHabitEvents(cardRoot) {
+                cardRoot.querySelector("#addHabitBtn").addEventListener("click", function () {
+                    var nameInput = cardRoot.querySelector("#habitName");
+                    var name = nameInput.value.trim();
+                    if (!name) {
+                        return;
+                    }
+                    state.habits.items.push({ id: uid("habit"), name: name, dates: [] });
+                    nameInput.value = "";
+                    scheduleSave();
+                    renderHabits();
+                });
+
+                cardRoot.querySelectorAll("[data-toggle-habit]").forEach(function (checkbox) {
+                    checkbox.addEventListener("change", function () {
+                        var habitId = checkbox.getAttribute("data-toggle-habit");
+                        var habit = state.habits.items.find(function (entry) { return entry.id === habitId; });
+                        if (!habit) {
+                            return;
+                        }
+                        var today = todayIso();
+                        if (checkbox.checked) {
+                            if (habit.dates.indexOf(today) === -1) {
+                                habit.dates.push(today);
+                            }
+                        } else {
+                            habit.dates = habit.dates.filter(function (value) { return value !== today; });
+                        }
+                        scheduleSave();
+                        renderHabits();
+                    });
+                });
+
+                cardRoot.querySelectorAll("[data-delete-habit]").forEach(function (button) {
+                    button.addEventListener("click", function () {
+                        var id = button.getAttribute("data-delete-habit");
+                        state.habits.items = state.habits.items.filter(function (habit) { return habit.id !== id; });
+                        scheduleSave();
+                        renderHabits();
+                    });
+                });
+            }
+
+            function getMonthMatrix(year, month) {
+                var first = new Date(year, month, 1);
+                var start = new Date(first);
+                start.setDate(first.getDate() - first.getDay());
+                var days = [];
+                for (var i = 0; i < 42; i += 1) {
+                    var date = new Date(start);
+                    date.setDate(start.getDate() + i);
+                    days.push(date);
+                }
+                return days;
+            }
+
+            function renderCalendar() {
+                var card = document.getElementById("calendarCard");
+                var year = state.calendar.viewYear;
+                var month = state.calendar.viewMonth;
+                var days = getMonthMatrix(year, month);
+                var labels = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+                var selectedDate = state.calendar.selectedDate;
+                var selectedEvents = state.calendar.events
+                    .filter(function (event) { return event.date === selectedDate; })
+                    .sort(function (a, b) { return (a.time || "").localeCompare(b.time || ""); });
+
+                card.innerHTML =
+                    '<div class="section-head"><h2>Calendar</h2><span class="muted">Create and persist events by date.</span></div>' +
+                    '<div class="calendar-head">' +
+                    '<div class="row"><button class="btn" id="prevMonth">&lt;</button><strong>' + new Date(year, month, 1).toLocaleString(undefined, { month: "long", year: "numeric" }) + '</strong><button class="btn" id="nextMonth">&gt;</button></div>' +
+                    '<button class="btn" id="todayJump">Today</button>' +
+                    "</div>" +
+                    '<div class="calendar-grid">' +
+                    labels.map(function (label) { return '<div class="dow">' + label + "</div>"; }).join("") +
+                    days.map(function (dateObj) {
+                        var iso = toIsoDate(dateObj);
+                        var isOutside = dateObj.getMonth() !== month;
+                        var hasEvent = state.calendar.events.some(function (event) { return event.date === iso; });
+                        var cls = "day" + (isOutside ? " outside" : "") + (iso === selectedDate ? " selected" : "");
+                        return '<button class="' + cls + '" data-date="' + iso + '">' + dateObj.getDate() + (hasEvent ? '<span class="event-dot"></span>' : "") + "</button>";
+                    }).join("") +
+                    "</div>" +
+                    '<div style="margin-top:12px;">' +
+                    "<strong>" + selectedDate + "</strong>" +
+                    '<div class="row" style="margin-top:8px;">' +
+                    '<input type="text" id="eventTitle" class="grow" placeholder="Event title">' +
+                    '<input type="time" id="eventTime" style="max-width:130px;">' +
+                    '<input type="text" id="eventTag" style="max-width:140px;" placeholder="Tag">' +
+                    '<button class="btn btn-primary" id="addEventBtn">Add Event</button>' +
+                    "</div>" +
+                    '<div class="event-list">' +
+                    (selectedEvents.length
+                        ? selectedEvents.map(function (event) {
+                            return '<div class="event-item"><span>' + (event.time ? "[" + event.time + "] " : "") + escapeHtml(event.title) + (event.tag ? ' <span class="tag">#' + escapeHtml(event.tag) + "</span>" : "") + '</span><button class="btn" data-delete-event="' + event.id + '">Delete</button></div>';
+                        }).join("")
+                        : '<p class="muted">No events for this date.</p>') +
+                    "</div>" +
+                    "</div>";
+
+                bindCalendarEvents(card);
+            }
+
+            function bindCalendarEvents(cardRoot) {
+                cardRoot.querySelector("#prevMonth").addEventListener("click", function () {
+                    state.calendar.viewMonth -= 1;
+                    if (state.calendar.viewMonth < 0) {
+                        state.calendar.viewMonth = 11;
+                        state.calendar.viewYear -= 1;
+                    }
+                    scheduleSave();
+                    renderCalendar();
+                });
+                cardRoot.querySelector("#nextMonth").addEventListener("click", function () {
+                    state.calendar.viewMonth += 1;
+                    if (state.calendar.viewMonth > 11) {
+                        state.calendar.viewMonth = 0;
+                        state.calendar.viewYear += 1;
+                    }
+                    scheduleSave();
+                    renderCalendar();
+                });
+                cardRoot.querySelector("#todayJump").addEventListener("click", function () {
+                    var now = new Date();
+                    state.calendar.viewYear = now.getFullYear();
+                    state.calendar.viewMonth = now.getMonth();
+                    state.calendar.selectedDate = todayIso();
+                    scheduleSave();
+                    renderCalendar();
+                });
+                cardRoot.querySelectorAll("[data-date]").forEach(function (button) {
+                    button.addEventListener("click", function () {
+                        state.calendar.selectedDate = button.getAttribute("data-date");
+                        scheduleSave();
+                        renderCalendar();
+                    });
+                });
+                cardRoot.querySelector("#addEventBtn").addEventListener("click", function () {
+                    var titleInput = cardRoot.querySelector("#eventTitle");
+                    var timeInput = cardRoot.querySelector("#eventTime");
+                    var tagInput = cardRoot.querySelector("#eventTag");
+                    var title = titleInput.value.trim();
+                    if (!title) {
+                        return;
+                    }
+                    state.calendar.events.push({
+                        id: uid("evt"),
+                        date: state.calendar.selectedDate,
+                        title: title,
+                        time: timeInput.value || "",
+                        tag: tagInput.value.trim()
+                    });
+                    titleInput.value = "";
+                    timeInput.value = "";
+                    tagInput.value = "";
+                    scheduleSave();
+                    renderCalendar();
+                });
+                cardRoot.querySelectorAll("[data-delete-event]").forEach(function (button) {
+                    button.addEventListener("click", function () {
+                        var id = button.getAttribute("data-delete-event");
+                        state.calendar.events = state.calendar.events.filter(function (event) { return event.id !== id; });
+                        scheduleSave();
+                        renderCalendar();
+                    });
+                });
+            }
+
+            function escapeHtml(value) {
+                return String(value)
+                    .replace(/&/g, "&amp;")
+                    .replace(/</g, "&lt;")
+                    .replace(/>/g, "&gt;")
+                    .replace(/"/g, "&quot;")
+                    .replace(/'/g, "&#39;");
+            }
+
+            function escapeAttr(value) {
+                return escapeHtml(value).replace(/"/g, "&quot;");
+            }
+
+            function renderApp() {
+                createShell();
+                renderTopbar();
+                renderKanban();
+                renderGames();
+                renderNotes();
+                renderHabits();
+                renderCalendar();
+            }
+
+            function ensureGamesInitialized() {
+                if (!state.games || !state.games.g2048 || !Array.isArray(state.games.g2048.grid)) {
+                    state = createDefaultState();
+                }
+                var allZero = state.games.g2048.grid.flat().every(function (value) { return value === 0; });
+                if (allZero) {
+                    start2048Game();
+                }
+            }
+
+            window.addEventListener("keydown", function (event) {
+                var keyMap = {
+                    ArrowUp: "up",
+                    ArrowDown: "down",
+                    ArrowLeft: "left",
+                    ArrowRight: "right"
+                };
+                var direction = keyMap[event.key];
+                if (direction && state.games.active === "2048") {
+                    event.preventDefault();
+                    move2048(direction);
+                }
+            });
+
+            initTheme();
+            ensureGamesInitialized();
+            renderApp();
+            scheduleSave();
+        }());
+    </script>
 </body>
 </html>
