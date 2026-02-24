@@ -8,6 +8,7 @@
         body {
             /* Centers the text vertically and horizontally usa */
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
             height: 100vh;
@@ -27,11 +28,37 @@
             font-weight: 700;
             letter-spacing: -0.02em;
         }
+
+        .links {
+            margin-top: 2rem;
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .links a {
+            color: #002868;
+            text-decoration: none;
+            font-weight: 600;
+            padding: 0.5rem 1rem;
+            border: 2px solid #002868;
+            border-radius: 8px;
+            transition: background-color 0.2s, color 0.2s;
+        }
+
+        .links a:hover {
+            background-color: #002868;
+            color: #fff;
+        }
     </style>
 </head>
 <body>
 
     <h1>Go team USA!!! 🇺🇸</h1>
+    <nav class="links">
+        <a href="dice-roller.html">Dice Roller Game</a>
+    </nav>
 
 </body>
 </html>
