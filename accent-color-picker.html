@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Accent Color Picker</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 32'><rect width='64' height='32' fill='%23BF0A30'/><rect width='25.6' height='32' fill='%23002868'/></svg>" type="image/svg+xml">
+  <style>
+    :root { --accent: #e94560; --accent-rgb: 233, 69, 96; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-family: system-ui, -apple-system, sans-serif;
+      background: #1a1a2e;
+      color: #e8e8e8;
+      padding: 2rem;
+    }
+    h1 { font-size: 1.75rem; margin-bottom: 1.5rem; }
+    .card {
+      background: #0f3460;
+      border-radius: 16px;
+      padding: 1.5rem;
+      max-width: 360px;
+      width: 100%;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+    }
+    .field { margin-bottom: 1rem; }
+    .field label { display: block; font-weight: 600; margin-bottom: 0.5rem; }
+    .field input[type="color"] {
+      width: 100%;
+      height: 48px;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      background: transparent;
+    }
+    .preview {
+      margin-top: 1.5rem;
+      padding: 1rem;
+      border-radius: 10px;
+      background: rgba(var(--accent-rgb), 0.2);
+      border: 2px solid var(--accent);
+      color: var(--accent);
+      font-weight: 600;
+      text-align: center;
+    }
+    .btn-preview {
+      margin-top: 0.75rem;
+      padding: 0.75rem 1.5rem;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .presets { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 0.5rem; }
+    .presets button {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      border: 2px solid #2d4059;
+      cursor: pointer;
+      transition: transform 0.1s;
+    }
+    .presets button:hover { transform: scale(1.1); }
+  </style>
+</head>
+<body>
+  <h1>Accent Color Picker</h1>
+  <div class="card">
+    <div class="field">
+      <label for="color">Accent color (CSS variable)</label>
+      <input type="color" id="color" value="#e94560">
+    </div>
+    <div class="presets">
+      <button type="button" data-color="#e94560" style="background:#e94560" title="Red"></button>
+      <button type="button" data-color="#002868" style="background:#002868" title="Navy"></button>
+      <button type="button" data-color="#00A651" style="background:#00A651" title="Green"></button>
+      <button type="button" data-color="#FCB131" style="background:#FCB131" title="Gold"></button>
+      <button type="button" data-color="#0081C8" style="background:#0081C8" title="Blue"></button>
+      <button type="button" data-color="#9b59b6" style="background:#9b59b6" title="Purple"></button>
+    </div>
+    <div class="preview">Preview: accent is applied via CSS variables.</div>
+    <button class="btn-preview">Button with accent</button>
+  </div>
+
+  <script>
+    const colorInput = document.getElementById('color');
+    const root = document.documentElement;
+
+    function setAccent(hex) {
+      hex = hex.replace(/^#/, '');
+      const r = parseInt(hex.slice(0, 2), 16);
+      const g = parseInt(hex.slice(2, 4), 16);
+      const b = parseInt(hex.slice(4, 6), 16);
+      root.style.setProperty('--accent', '#' + hex);
+      root.style.setProperty('--accent-rgb', `${r}, ${g}, ${b}`);
+      colorInput.value = '#' + hex;
+    }
+
+    colorInput.addEventListener('input', () => setAccent(colorInput.value));
+    document.querySelectorAll('.presets button').forEach(btn => {
+      btn.addEventListener('click', () => setAccent(btn.dataset.color));
+    });
+  </script>
+</body>
+</html>

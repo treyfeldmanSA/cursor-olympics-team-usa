@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tag Input (Chips)</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 32'><rect width='64' height='32' fill='%23BF0A30'/><rect width='25.6' height='32' fill='%23002868'/></svg>" type="image/svg+xml">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-family: system-ui, -apple-system, sans-serif;
+      background: linear-gradient(145deg, #1a1a2e 0%, #16213e 100%);
+      color: #e8e8e8;
+      padding: 2rem;
+    }
+    h1 { font-size: 1.75rem; margin-bottom: 1.5rem; }
+    .card {
+      background: #0f3460;
+      border-radius: 16px;
+      padding: 1rem;
+      max-width: 480px;
+      width: 100%;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+      border: 2px solid #2d4059;
+      min-height: 80px;
+    }
+    .card:focus-within { border-color: #e94560; }
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      align-items: center;
+    }
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.4rem 0.75rem;
+      background: #e94560;
+      color: #fff;
+      border-radius: 999px;
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+    .chip button {
+      background: none;
+      border: none;
+      color: rgba(255,255,255,0.9);
+      cursor: pointer;
+      font-size: 1.1rem;
+      line-height: 1;
+      padding: 0 0.15rem;
+      border-radius: 4px;
+    }
+    .chip button:hover { color: #fff; background: rgba(255,255,255,0.2); }
+    .tag-input {
+      flex: 1;
+      min-width: 120px;
+      padding: 0.5rem 0.25rem;
+      border: none;
+      background: transparent;
+      color: #e8e8e8;
+      font-size: 1rem;
+      outline: none;
+    }
+    .tag-input::placeholder { color: #6a6a6a; }
+  </style>
+</head>
+<body>
+  <h1>Tag Input</h1>
+  <p style="margin-bottom: 1rem; color: #a0a0a0; font-size: 0.9rem;">Type and press Enter to add a tag. Click × to remove.</p>
+  <div class="card" id="container">
+    <div class="chips" id="chips">
+      <input type="text" class="tag-input" id="input" placeholder="Add a tag..." autocomplete="off">
+    </div>
+  </div>
+
+  <script>
+    const container = document.getElementById('container');
+    const chipsEl = document.getElementById('chips');
+    const input = document.getElementById('input');
+    const tags = new Set();
+
+    function addTag(text) {
+      const t = text.trim();
+      if (!t || tags.has(t)) return;
+      tags.add(t);
+      const chip = document.createElement('span');
+      chip.className = 'chip';
+      chip.dataset.tag = t;
+      chip.appendChild(document.createTextNode(t));
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.setAttribute('aria-label', 'Remove ' + t);
+      btn.textContent = '×';
+      btn.addEventListener('click', () => {
+        tags.delete(t);
+        chip.remove();
+      });
+      chip.appendChild(btn);
+      chipsEl.insertBefore(chip, input);
+      input.value = '';
+    }
+
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        addTag(input.value);
+      } else if (e.key === 'Backspace' && !input.value && tags.size) {
+        const last = chipsEl.querySelector('.chip:last-of-type');
+        if (last) {
+          tags.delete(last.dataset.tag);
+          last.remove();
+        }
+      }
+    });
+  </script>
+</body>
+</html>

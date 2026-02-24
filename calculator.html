@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calculator</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 32'><rect width='64' height='32' fill='%23BF0A30'/><rect width='25.6' height='32' fill='%23002868'/></svg>" type="image/svg+xml">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-family: system-ui, -apple-system, sans-serif;
+      background: linear-gradient(145deg, #1a1a2e 0%, #16213e 100%);
+      color: #e8e8e8;
+      padding: 1rem;
+    }
+    h1 { font-size: 1.5rem; margin-bottom: 1rem; color: #fff; }
+    .calc {
+      background: #0f3460;
+      border-radius: 16px;
+      padding: 1.25rem;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+    }
+    .display {
+      background: #1a1a2e;
+      border-radius: 10px;
+      padding: 1rem 1.25rem;
+      margin-bottom: 1rem;
+      text-align: right;
+      font-size: 1.75rem;
+      font-weight: 600;
+      min-height: 3rem;
+      word-break: break-all;
+      border: 1px solid #2d4059;
+    }
+    .keys {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0.5rem;
+    }
+    .key {
+      padding: 1rem;
+      font-size: 1.25rem;
+      font-weight: 600;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      background: #2d4059;
+      color: #e8e8e8;
+      transition: background 0.15s, transform 0.1s;
+    }
+    .key:hover { background: #3d5169; }
+    .key:active { transform: scale(0.97); }
+    .key.op { background: #e94560; color: #fff; }
+    .key.op:hover { background: #ff5566; }
+    .key.equals { background: #00A651; color: #fff; grid-column: span 2; }
+    .key.equals:hover { background: #00c261; }
+    .key.zero { grid-column: span 2; }
+  </style>
+</head>
+<body>
+  <h1>Calculator</h1>
+  <div class="calc">
+    <div class="display" id="display">0</div>
+    <div class="keys">
+      <button class="key" data-action="clear">C</button>
+      <button class="key op" data-action="op" data-op="/">÷</button>
+      <button class="key op" data-action="op" data-op="*">×</button>
+      <button class="key op" data-action="back">⌫</button>
+      <button class="key" data-digit="7">7</button>
+      <button class="key" data-digit="8">8</button>
+      <button class="key" data-digit="9">9</button>
+      <button class="key op" data-action="op" data-op="-">−</button>
+      <button class="key" data-digit="4">4</button>
+      <button class="key" data-digit="5">5</button>
+      <button class="key" data-digit="6">6</button>
+      <button class="key op" data-action="op" data-op="+">+</button>
+      <button class="key" data-digit="1">1</button>
+      <button class="key" data-digit="2">2</button>
+      <button class="key" data-digit="3">3</button>
+      <button class="key" data-action="equals">=</button>
+      <button class="key zero" data-digit="0">0</button>
+      <button class="key" data-action="decimal">.</button>
+    </div>
+  </div>
+
+  <script>
+    const display = document.getElementById('display');
+    let current = '0';
+    let previous = null;
+    let op = null;
+
+    function updateDisplay() {
+      display.textContent = current;
+    }
+
+    document.querySelectorAll('.key').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const digit = btn.dataset.digit;
+        const action = btn.dataset.action;
+        const opVal = btn.dataset.op;
+
+        if (digit !== undefined) {
+          if (current === '0' && digit !== '.') current = digit;
+          else current += digit;
+          updateDisplay();
+          return;
+        }
+        if (action === 'decimal') {
+          if (!current.includes('.')) current += '.';
+          updateDisplay();
+          return;
+        }
+        if (action === 'clear') {
+          current = '0';
+          previous = null;
+          op = null;
+          updateDisplay();
+          return;
+        }
+        if (action === 'back') {
+          current = current.slice(0, -1) || '0';
+          updateDisplay();
+          return;
+        }
+        if (opVal) {
+          if (previous !== null && op) {
+            const a = parseFloat(previous);
+            const b = parseFloat(current);
+            let result = previous;
+            if (op === '+') result = a + b;
+            else if (op === '-') result = a - b;
+            else if (op === '*') result = a * b;
+            else if (op === '/' && b !== 0) result = a / b;
+            current = String(result);
+          }
+          previous = current;
+          current = '0';
+          op = opVal;
+          updateDisplay();
+          return;
+        }
+        if (action === 'equals') {
+          if (previous === null || op === null) return;
+          const a = parseFloat(previous);
+          const b = parseFloat(current);
+          let result = previous;
+          if (op === '+') result = a + b;
+          else if (op === '-') result = a - b;
+          else if (op === '*') result = a * b;
+          else if (op === '/' && b !== 0) result = a / b;
+          current = String(Number.isInteger(result) ? result : Math.round(result * 1e10) / 1e10);
+          previous = null;
+          op = null;
+          updateDisplay();
+        }
+      });
+    });
+  </script>
+</body>
+</html>

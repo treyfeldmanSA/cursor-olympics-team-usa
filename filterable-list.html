@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Filterable List</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 32'><rect width='64' height='32' fill='%23BF0A30'/><rect width='25.6' height='32' fill='%23002868'/></svg>" type="image/svg+xml">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-family: system-ui, -apple-system, sans-serif;
+      background: linear-gradient(145deg, #1a1a2e 0%, #16213e 100%);
+      color: #e8e8e8;
+      padding: 2rem;
+    }
+    h1 { font-size: 1.75rem; margin-bottom: 1rem; }
+    .card {
+      background: #0f3460;
+      border-radius: 16px;
+      padding: 1rem;
+      max-width: 360px;
+      width: 100%;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+    }
+    .search {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      border-radius: 10px;
+      border: 2px solid #2d4059;
+      background: #1a1a2e;
+      color: #e8e8e8;
+      font-size: 1rem;
+      margin-bottom: 1rem;
+    }
+    .search:focus { outline: none; border-color: #e94560; }
+    .search::placeholder { color: #6a6a6a; }
+    .list { list-style: none; max-height: 320px; overflow-y: auto; }
+    .list li {
+      padding: 0.75rem 1rem;
+      border-radius: 8px;
+      margin-bottom: 0.25rem;
+      transition: background 0.15s, opacity 0.15s;
+    }
+    .list li:hover { background: #2d4059; }
+    .list li.hidden { display: none; }
+    .no-results { padding: 1rem; color: #808080; text-align: center; display: none; }
+    .no-results.visible { display: block; }
+  </style>
+</head>
+<body>
+  <h1>Filterable List</h1>
+  <div class="card">
+    <input type="text" class="search" id="search" placeholder="Filter sports..." autocomplete="off">
+    <p class="no-results" id="noResults">No matches</p>
+    <ul class="list" id="list">
+      <li>Swimming</li>
+      <li>Track and Field</li>
+      <li>Basketball</li>
+      <li>Gymnastics</li>
+      <li>Soccer</li>
+      <li>Volleyball</li>
+      <li>Boxing</li>
+      <li>Wrestling</li>
+      <li>Cycling</li>
+      <li>Tennis</li>
+      <li>Golf</li>
+      <li>Archery</li>
+      <li>Shooting</li>
+      <li>Fencing</li>
+      <li>Rowing</li>
+      <li>Equestrian</li>
+      <li>Skating</li>
+      <li>Skiing</li>
+      <li>Snowboarding</li>
+      <li>Curling</li>
+    </ul>
+  </div>
+
+  <script>
+    const search = document.getElementById('search');
+    const list = document.getElementById('list');
+    const noResults = document.getElementById('noResults');
+    const items = Array.from(list.querySelectorAll('li'));
+
+    function filter() {
+      const q = search.value.trim().toLowerCase();
+      let visible = 0;
+      items.forEach(li => {
+        const match = !q || li.textContent.toLowerCase().includes(q);
+        li.classList.toggle('hidden', !match);
+        if (match) visible++;
+      });
+      noResults.classList.toggle('visible', visible === 0);
+    }
+
+    search.addEventListener('input', filter);
+  </script>
+</body>
+</html>

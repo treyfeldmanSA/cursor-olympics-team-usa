@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Accordion</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 32'><rect width='64' height='32' fill='%23BF0A30'/><rect width='25.6' height='32' fill='%23002868'/></svg>" type="image/svg+xml">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-family: system-ui, -apple-system, sans-serif;
+      background: linear-gradient(145deg, #1a1a2e 0%, #16213e 100%);
+      color: #e8e8e8;
+      padding: 2rem;
+    }
+    h1 { font-size: 1.75rem; margin-bottom: 1.5rem; }
+    .accordion { width: 100%; max-width: 420px; }
+    .item {
+      background: #0f3460;
+      border-radius: 10px;
+      margin-bottom: 0.5rem;
+      overflow: hidden;
+      border: 1px solid #2d4059;
+    }
+    .item:last-child { margin-bottom: 0; }
+    .head {
+      width: 100%;
+      padding: 1rem 1.25rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: transparent;
+      border: none;
+      color: #e8e8e8;
+      font-size: 1rem;
+      font-weight: 600;
+      text-align: left;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .head:hover { background: rgba(233, 69, 96, 0.15); }
+    .head::after {
+      content: '+';
+      font-size: 1.25rem;
+      color: #e94560;
+      transition: transform 0.2s;
+    }
+    .item.open .head::after { transform: rotate(45deg); }
+    .body {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease;
+    }
+    .body-inner { padding: 0 1.25rem 1rem; color: #a0a0a0; font-size: 0.95rem; line-height: 1.5; }
+  </style>
+</head>
+<body>
+  <h1>Accordion</h1>
+  <div class="accordion">
+    <div class="item">
+      <button class="head" type="button" aria-expanded="false">What is Team USA?</button>
+      <div class="body">
+        <div class="body-inner">Team USA is the name used for the United States Olympic and Paralympic teams. Athletes compete under the American flag in summer and winter games.</div>
+      </div>
+    </div>
+    <div class="item">
+      <button class="head" type="button" aria-expanded="false">When are the next Olympics?</button>
+      <div class="body">
+        <div class="body-inner">The next Summer Olympics are in Los Angeles in 2028. The next Winter Olympics are in 2026.</div>
+      </div>
+    </div>
+    <div class="item">
+      <button class="head" type="button" aria-expanded="false">How do I support the team?</button>
+      <div class="body">
+        <div class="body-inner">You can follow official Team USA channels, watch events, and support athletes through official partners and fan programs.</div>
+      </div>
+    </div>
+    <div class="item">
+      <button class="head" type="button" aria-expanded="false">Which sports does Team USA compete in?</button>
+      <div class="body">
+        <div class="body-inner">Team USA competes in all Olympic sports, including athletics, swimming, gymnastics, basketball, and many more summer and winter disciplines.</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.querySelectorAll('.accordion .head').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const item = btn.closest('.item');
+        const isOpen = item.classList.contains('open');
+        document.querySelectorAll('.accordion .item').forEach(i => {
+          i.classList.remove('open');
+          i.querySelector('.head').setAttribute('aria-expanded', 'false');
+        });
+        if (!isOpen) {
+          item.classList.add('open');
+          btn.setAttribute('aria-expanded', 'true');
+        }
+      });
+    });
+  </script>
+</body>
+</html>

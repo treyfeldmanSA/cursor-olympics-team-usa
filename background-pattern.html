@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Background Pattern Selector</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 32'><rect width='64' height='32' fill='%23BF0A30'/><rect width='25.6' height='32' fill='%23002868'/></svg>" type="image/svg+xml">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      min-height: 100vh;
+      font-family: system-ui, -apple-system, sans-serif;
+      color: #e8e8e8;
+      padding: 2rem;
+      transition: background 0.3s, background-size 0.3s, background-color 0.3s;
+    }
+    h1 { font-size: 1.75rem; margin-bottom: 1rem; text-align: center; }
+    .card {
+      background: rgba(15, 52, 96, 0.85);
+      border-radius: 16px;
+      padding: 1.5rem;
+      max-width: 420px;
+      margin: 0 auto 1.5rem;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+    }
+    .card h2 { font-size: 1rem; margin-bottom: 0.75rem; color: #a0a0a0; text-transform: uppercase; letter-spacing: 0.05em; }
+    .options { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+    .options button {
+      padding: 0.6rem 1rem;
+      border: 2px solid #2d4059;
+      border-radius: 10px;
+      background: #2d4059;
+      color: #e8e8e8;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.9rem;
+      transition: all 0.15s;
+    }
+    .options button:hover { border-color: #e94560; background: #3d5169; }
+    .options button.active { border-color: #e94560; background: #e94560; color: #fff; }
+    /* Pattern presets */
+    body.pattern-none { background: #1a1a2e; }
+    body.pattern-dots {
+      background-color: #1a1a2e;
+      background-image: radial-gradient(circle, #e94560 1px, transparent 1px);
+      background-size: 24px 24px;
+    }
+    body.pattern-grid {
+      background-color: #1a1a2e;
+      background-image: linear-gradient(#2d4059 1px, transparent 1px), linear-gradient(90deg, #2d4059 1px, transparent 1px);
+      background-size: 32px 32px;
+    }
+    body.pattern-stripes {
+      background-color: #16213e;
+      background-image: repeating-linear-gradient(45deg, transparent, transparent 20px, rgba(233, 69, 96, 0.08) 20px, rgba(233, 69, 96, 0.08) 40px);
+      background-size: 100% 100%;
+    }
+    body.pattern-rings {
+      background-color: #1a1a2e;
+      background-image: radial-gradient(circle at center, transparent 0%, transparent 60%, rgba(233, 69, 96, 0.15) 60%, transparent 70%);
+      background-size: 80px 80px;
+    }
+    body.pattern-checks {
+      background-color: #1a1a2e;
+      background-image: linear-gradient(45deg, #2d4059 25%, transparent 25%), linear-gradient(-45deg, #2d4059 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #2d4059 75%), linear-gradient(-45deg, transparent 75%, #2d4059 75%);
+      background-size: 32px 32px;
+      background-position: 0 0, 0 16px, 16px -16px, -16px 0;
+    }
+  </style>
+</head>
+<body class="pattern-none">
+  <h1>Background Pattern</h1>
+  <div class="card">
+    <h2>Select pattern</h2>
+    <div class="options">
+      <button type="button" data-pattern="none" class="active">None</button>
+      <button type="button" data-pattern="dots">Dots</button>
+      <button type="button" data-pattern="grid">Grid</button>
+      <button type="button" data-pattern="stripes">Stripes</button>
+      <button type="button" data-pattern="rings">Rings</button>
+      <button type="button" data-pattern="checks">Checks</button>
+    </div>
+  </div>
+
+  <script>
+    const body = document.body;
+    document.querySelectorAll('.options button').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.options button').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        body.className = 'pattern-' + (btn.dataset.pattern || 'none');
+      });
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Unit Converter</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 32'><rect width='64' height='32' fill='%23BF0A30'/><rect width='25.6' height='32' fill='%23002868'/></svg>" type="image/svg+xml">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-family: system-ui, -apple-system, sans-serif;
+      background: linear-gradient(145deg, #1a1a2e 0%, #16213e 100%);
+      color: #e8e8e8;
+      padding: 2rem;
+    }
+    h1 { font-size: 1.75rem; margin-bottom: 1.5rem; }
+    .card {
+      background: #0f3460;
+      border-radius: 16px;
+      padding: 1.5rem;
+      max-width: 400px;
+      width: 100%;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+    }
+    .row { display: flex; gap: 0.75rem; align-items: center; margin-bottom: 1rem; }
+    .row input { flex: 1; padding: 0.75rem; border-radius: 8px; border: 2px solid #2d4059; background: #1a1a2e; color: #e8e8e8; font-size: 1rem; }
+    .row select { padding: 0.75rem; border-radius: 8px; border: 2px solid #2d4059; background: #2d4059; color: #e8e8e8; font-size: 0.95rem; min-width: 100px; }
+    .category { margin-bottom: 1.5rem; }
+    .category label { display: block; font-weight: 600; margin-bottom: 0.5rem; font-size: 0.85rem; color: #a0a0a0; text-transform: uppercase; letter-spacing: 0.05em; }
+    .swap { display: flex; justify-content: center; margin: 0.5rem 0; }
+    .swap button { background: #e94560; border: none; color: #fff; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; font-size: 1.2rem; transition: transform 0.15s; }
+    .swap button:hover { transform: scale(1.1); }
+  </style>
+</head>
+<body>
+  <h1>Unit Converter</h1>
+  <div class="card">
+    <div class="category">
+      <label>Category</label>
+      <select id="category">
+        <option value="length">Length</option>
+        <option value="weight">Weight</option>
+        <option value="temp">Temperature</option>
+      </select>
+    </div>
+    <div class="row">
+      <input type="number" id="fromVal" value="1" step="any">
+      <select id="fromUnit"></select>
+    </div>
+    <div class="swap"><button type="button" id="swap" aria-label="Swap">⇅</button></div>
+    <div class="row">
+      <input type="number" id="toVal" readonly>
+      <select id="toUnit"></select>
+    </div>
+  </div>
+
+  <script>
+    const units = {
+      length: { m: 1, km: 1000, mi: 1609.344, yd: 0.9144, ft: 0.3048, in: 0.0254, cm: 0.01 },
+      weight: { kg: 1, g: 0.001, lb: 0.453592, oz: 0.0283495 },
+      temp: { C: 'C', F: 'F', K: 'K' }
+    };
+    const fromVal = document.getElementById('fromVal');
+    const toVal = document.getElementById('toVal');
+    const fromUnit = document.getElementById('fromUnit');
+    const toUnit = document.getElementById('toUnit');
+    const category = document.getElementById('category');
+    const swapBtn = document.getElementById('swap');
+
+    function fillOptions() {
+      const cat = category.value;
+      const opts = Object.keys(units[cat]);
+      fromUnit.innerHTML = opts.map(u => `<option value="${u}">${u}</option>`).join('');
+      toUnit.innerHTML = opts.map(u => `<option value="${u}">${u}</option>`).join('');
+      if (cat === 'temp') {
+        fromUnit.value = 'C';
+        toUnit.value = 'F';
+      } else {
+        toUnit.value = opts[opts.length - 1] === fromUnit.value ? opts[0] : opts.find(u => u !== fromUnit.value) || opts[0];
+      }
+      convert();
+    }
+
+    function convert() {
+      const cat = category.value;
+      const v = parseFloat(fromVal.value) || 0;
+      const from = fromUnit.value;
+      const to = toUnit.value;
+
+      if (cat === 'temp') {
+        let c;
+        if (from === 'C') c = v;
+        else if (from === 'F') c = (v - 32) * 5 / 9;
+        else c = v - 273.15;
+        let out;
+        if (to === 'C') out = c;
+        else if (to === 'F') out = c * 9 / 5 + 32;
+        else out = c + 273.15;
+        toVal.value = Math.round(out * 1e4) / 1e4;
+      } else {
+        const base = v * units[cat][from];
+        toVal.value = base / units[cat][to];
+      }
+    }
+
+    category.addEventListener('change', fillOptions);
+    fromVal.addEventListener('input', convert);
+    fromUnit.addEventListener('change', convert);
+    toUnit.addEventListener('change', convert);
+    swapBtn.addEventListener('click', () => {
+      const f = fromUnit.value, t = toUnit.value;
+      fromUnit.value = t;
+      toUnit.value = f;
+      convert();
+      const v = fromVal.value;
+      fromVal.value = toVal.value;
+      toVal.value = v;
+      convert();
+    });
+
+    fillOptions();
+  </script>
+</body>
+</html>
